@@ -10,7 +10,7 @@
 
 Der MMA7660FC ist ein 3-Achsen-Beschleunigungssensor mit ±1,5 g und digitalem Ausgang (I²C). Er ist ein kapazitiver MEMS-Sensor mit sehr geringem Stromverbrauch und flachem Profil. Er verfügt über einen Tiefpassfilter, Kompensation von 0-g-Offset- und Verstärkungsfehlern sowie die Konvertierung in 6-Bit-Digitalwerte mit benutzerkonfigurierbaren Abtastwerten pro Sekunde. Das Gerät kann für Sensordatenänderungen, Produktausrichtung und Gestenerkennung über einen Interrupt-Pin (INT) verwendet werden. Das Gerät ist in einem kleinen DFN-Gehäuse (3 mm x 3 mm x 0,9 mm) untergebracht.
 
-LibDriver MMA7660FC ist der vollfunktionale Treiber für mma7660fc von LibDriver. Er bietet Beschleunigungsmessung, Erschütterungs-, Tipp- und Bewegungserkennung sowie weitere Funktionen. LibDriver ist MISRA-kompatibel.
+LibDriver MMA7660FC ist der vollfunktionale Treiber für MMA7660FC von LibDriver. Er bietet Beschleunigungsmessung, Erschütterungs-, Tipp- und Bewegungserkennung sowie weitere Funktionen. LibDriver ist MISRA-kompatibel.
 
 ### Inhaltsverzeichnis
 

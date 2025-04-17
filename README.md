@@ -10,7 +10,7 @@
 
 The MMA7660FC is a ±1.5 g 3-Axis Accelerometer with Digital Output(I2C). It is a very low power, low profile capacitive MEMS sensor featuring a low pass filter, compensation for 0g offset and gain errors, and conversion to 6-bit digital values at a user configurable samples per second. The device can be used for sensor data changes, product orientation, and gesture detection through an interrupt pin (INT). The device is housed in a small 3mm x 3mm x 0.9mm DFN package.
 
-LibDriver MMA7660FC is the full function driver of mma7660fc launched by LibDriver. It provides acceleration reading, shake detection, tap detection, motion detection and other functions. LibDriver is MISRA compliant.
+LibDriver MMA7660FC is a full-featured driver of MMA7660FC launched by LibDriver. It provides acceleration reading, shake detection, tap detection, motion detection and other functions. LibDriver is MISRA compliant.
 
 ### Table of Contents
 
