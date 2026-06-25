@@ -2105,18 +2105,18 @@ uint8_t mma7660fc_get_tap_pulse_debounce_count(mma7660fc_handle_t *handle, uint8
  */
 uint8_t mma7660fc_tap_pulse_debounce_convert_to_register(mma7660fc_handle_t *handle, float ms, uint8_t *reg)
 {
-    if (handle == NULL)                                /* check handle */
+    if (handle == NULL)                            /* check handle */
     {
-        return 2;                                      /* return error */
+        return 2;                                  /* return error */
     }
-    if (handle->inited != 1)                           /* check handle initialization */
+    if (handle->inited != 1)                       /* check handle initialization */
     {
-        return 3;                                      /* return error */
+        return 3;                                  /* return error */
     }
     
-    *reg = (uint8_t)((ms - 0.52f) / 0.26f) + 1;        /* convert real data to register data */
+    *reg = (uint8_t)((ms - 0.52f) / 0.26f);        /* convert real data to register data */
     
-    return 0;                                          /* success return 0 */
+    return 0;                                      /* success return 0 */
 }
 
 /**
@@ -2132,25 +2132,25 @@ uint8_t mma7660fc_tap_pulse_debounce_convert_to_register(mma7660fc_handle_t *han
  */
 uint8_t mma7660fc_tap_pulse_debounce_convert_to_data(mma7660fc_handle_t *handle, uint8_t reg, float *ms)
 {
-    if (handle == NULL)                                /* check handle */
+    if (handle == NULL)                            /* check handle */
     {
-        return 2;                                      /* return error */
+        return 2;                                  /* return error */
     }
-    if (handle->inited != 1)                           /* check handle initialization */
+    if (handle->inited != 1)                       /* check handle initialization */
     {
-        return 3;                                      /* return error */
-    }
-    
-    if (reg == 0)                                      /* if reg = 0 */
-    {
-        *ms = 0.52f;                                   /* set 0.52ms */
-    }
-    else                                               /* common convert */
-    {
-        *ms = (float)(reg - 1) * 0.26f + 0.52f;        /* convert raw data to real data */
+        return 3;                                  /* return error */
     }
     
-    return 0;                                          /* success return 0 */
+    if (reg == 0)                                  /* if reg = 0 */
+    {
+        *ms = 0.52f;                               /* set 0.52ms */
+    }
+    else                                           /* common convert */
+    {
+        *ms = (float)(reg) * 0.26f + 0.52f;        /* convert raw data to real data */
+    }
+    
+    return 0;                                      /* success return 0 */
 }
 
 /**
@@ -2167,6 +2167,8 @@ uint8_t mma7660fc_irq_handler(mma7660fc_handle_t *handle)
 {
     uint8_t res;
     uint8_t prev;
+    uint8_t ba_fro;
+    uint8_t pola;
     
     if (handle == NULL)                                                     /* check handle */
     {
@@ -2184,42 +2186,44 @@ uint8_t mma7660fc_irq_handler(mma7660fc_handle_t *handle)
         
         return 1;                                                           /* return error */
     }
-    if ((prev & (1 << 0)) != 0)                                             /* if lying on its front */
+    ba_fro = prev & 0x03;                                                   /*get ba fro */
+    pola = (prev >> 2) & 0x07;                                              /* get pola */
+    if (ba_fro == 0x01)                                                     /* if lying on its front */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
             handle->receive_callback(MMA7660FC_STATUS_FRONT);               /* run callback */
         }
     }
-    if ((prev & (1 << 1)) != 0)                                             /* if lying on its back */
+    if (ba_fro == 0x02)                                                     /* if lying on its back */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
             handle->receive_callback(MMA7660FC_STATUS_BACK);                /* run callback */
         }
     }
-    if ((prev & (1 << 2)) != 0)                                             /* if landscape mode to the left */
+    if (pola == 0x01)                                                       /* if landscape mode to the left */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
             handle->receive_callback(MMA7660FC_STATUS_LEFT);                /* run callback */
         }
     }
-    if ((prev & (2 << 2)) != 0)                                             /* if landscape mode to the right */
+    if (pola == 0x02)                                                       /* if landscape mode to the right */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
             handle->receive_callback(MMA7660FC_STATUS_RIGHT);               /* run callback */
         }
     }
-    if ((prev & (5 << 2)) != 0)                                             /* if standing vertically in inverted orientation */
+    if (pola == 0x05)                                                       /* if standing vertically in inverted orientation */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
             handle->receive_callback(MMA7660FC_STATUS_DOWN);                /* run callback */
         }
     }
-    if ((prev & (6 << 2)) != 0)                                             /* if standing vertically in normal orientation */
+    if (pola == 0x06)                                                       /* if standing vertically in normal orientation */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
