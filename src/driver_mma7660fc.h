@@ -191,6 +191,7 @@ typedef struct mma7660fc_handle_s
     void (*delay_ms)(uint32_t ms);                                                      /**< point to a delay_ms function address */
     void (*debug_print)(const char *const fmt, ...);                                    /**< point to a debug_print function address */
     uint8_t inited;                                                                     /**< inited flag */
+    uint8_t srst_state;                                                                 /**< state */
 } mma7660fc_handle_t;
 
 /**
@@ -345,7 +346,7 @@ uint8_t mma7660fc_deinit(mma7660fc_handle_t *handle);
 /**
  * @brief      read the data
  * @param[in]  *handle pointer to a mma7660fc handle structure
- * @param[out] *raw pointer to a raw pressure buffer
+ * @param[out] *raw pointer to a raw data buffer
  * @param[out] *g pointer to a converted data buffer
  * @return     status code
  *             - 0 success

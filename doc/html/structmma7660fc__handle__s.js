@@ -7,5 +7,6 @@ var structmma7660fc__handle__s =
     [ "iic_read", "structmma7660fc__handle__s.html#af4ef726288b88f51a846483803a1249b", null ],
     [ "iic_write", "structmma7660fc__handle__s.html#adca3ee7a793bbf510d5267daf0fcf1c5", null ],
     [ "inited", "structmma7660fc__handle__s.html#a19bedf28d2b9748f6a62d9ae93f4e68f", null ],
-    [ "receive_callback", "structmma7660fc__handle__s.html#a4a9a1af4e28aea769f6d9f02a02e07c3", null ]
+    [ "receive_callback", "structmma7660fc__handle__s.html#a4a9a1af4e28aea769f6d9f02a02e07c3", null ],
+    [ "srst_state", "structmma7660fc__handle__s.html#a8a2c869eee1709fc9413a59a0d06cf2e", null ]
 ];

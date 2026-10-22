@@ -988,6 +988,14 @@ uint8_t mma7660fc_set_mode(mma7660fc_handle_t *handle, mma7660fc_mode_t mode)
         
         return 1;                                                             /* return error */
     }
+    if (mode == MMA7660FC_MODE_ACTIVE)                                        /* active mode */
+    {
+        handle->srst_state = 0x01;                                            /* amsrs is the active baseline */
+    }
+    else                                                                      /* standby or test mode */
+    {
+        handle->srst_state = 0x00;                                            /* no sample rate is active */
+    }
     
     return 0;                                                                 /* success return 0 */
 }
@@ -2105,18 +2113,29 @@ uint8_t mma7660fc_get_tap_pulse_debounce_count(mma7660fc_handle_t *handle, uint8
  */
 uint8_t mma7660fc_tap_pulse_debounce_convert_to_register(mma7660fc_handle_t *handle, float ms, uint8_t *reg)
 {
-    if (handle == NULL)                            /* check handle */
+    float data;
+    
+    if (handle == NULL)              /* check handle */
     {
-        return 2;                                  /* return error */
+        return 2;                    /* return error */
     }
-    if (handle->inited != 1)                       /* check handle initialization */
+    if (handle->inited != 1)         /* check handle initialization */
     {
-        return 3;                                  /* return error */
+        return 3;                    /* return error */
     }
     
-    *reg = (uint8_t)((ms - 0.52f) / 0.26f);        /* convert real data to register data */
+    data = ms / 0.26f - 1.0f;        /* convert real data to register data */
+    if (data < 0.0f)                 /* check the minimum */
+    {
+        data = 0.0f;                 /* pd = 0 and pd = 1 both give 0.52ms */
+    }
+    if (data > 255.0f)               /* check the maximum */
+    {
+        data = 255.0f;               /* pd = 255 gives 66.56ms */
+    }
+    *reg = (uint8_t)data;            /* cast after clamping */
     
-    return 0;                                      /* success return 0 */
+    return 0;                        /* success return 0 */
 }
 
 /**
@@ -2143,11 +2162,11 @@ uint8_t mma7660fc_tap_pulse_debounce_convert_to_data(mma7660fc_handle_t *handle,
     
     if (reg == 0)                                  /* if reg = 0 */
     {
-        *ms = 0.52f;                               /* set 0.52ms */
+        *ms = 0.52f;                               /* pd = 0 and pd = 1 require 2 tests, response time is 0.52ms */
     }
     else                                           /* common convert */
     {
-        *ms = (float)(reg) * 0.26f + 0.52f;        /* convert raw data to real data */
+        *ms = 0.26f * (float)(reg + 1);            /* pd >= 1 requires (pd + 1) tests, response time is 0.26ms * (pd + 1) */
     }
     
     return 0;                                      /* success return 0 */
@@ -2258,20 +2277,22 @@ uint8_t mma7660fc_irq_handler(mma7660fc_handle_t *handle)
         
         return 1;                                                           /* return error */
     }
-    if ((prev & (1 << 0)) != 0)                                             /* if auto sleep */
+    prev &= 0x03;                                                           /* keep bits */
+    if (((prev & (1 << 1)) != 0) && ((handle->srst_state & (1 << 1)) == 0)) /* rising edge */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
-            handle->receive_callback(MMA7660FC_STATUS_AUTO_SLEEP);          /* run callback */
+            handle->receive_callback(MMA7660FC_STATUS_AUTO_SLEEP);          /* enter auto-wake state */
         }
     }
-    if ((prev & (1 << 1)) != 0)                                             /* if wake up */
+    if (((prev & (1 << 0)) != 0) && ((handle->srst_state & (1 << 0)) == 0)) /* rising edge */
     {
         if (handle->receive_callback != NULL)                               /* if receive callback */
         {
-            handle->receive_callback(MMA7660FC_STATUS_AUTO_WAKE_UP);        /* run callback */
+            handle->receive_callback(MMA7660FC_STATUS_AUTO_WAKE_UP);        /* return to active */
         }
     }
+    handle->srst_state = prev;                                              /* update the srst state */
     
     return 0;                                                               /* success return 0 */
 }
@@ -2339,6 +2360,7 @@ uint8_t mma7660fc_init(mma7660fc_handle_t *handle)
         
         return 1;                                                             /* return error */
     }
+    handle->srst_state = 0;                                                   /* chip enters in standby, no sample rate is active */
     handle->inited = 1;                                                       /* flag inited */
     
     return 0;                                                                 /* success return 0 */
@@ -2398,7 +2420,7 @@ uint8_t mma7660fc_deinit(mma7660fc_handle_t *handle)
 /**
  * @brief      read the data
  * @param[in]  *handle pointer to a mma7660fc handle structure
- * @param[out] *raw pointer to a raw pressure buffer
+ * @param[out] *raw pointer to a raw data buffer
  * @param[out] *g pointer to a converted data buffer
  * @return     status code
  *             - 0 success
