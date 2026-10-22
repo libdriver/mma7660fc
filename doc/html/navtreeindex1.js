@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"structmma7660fc__info__s.html":[0,0,1,1],
 "structmma7660fc__info__s.html#a3366a5dce9b829e03c3d321c2b4df3f6":[0,0,1,1,7],
 "structmma7660fc__info__s.html#a3d2b12bcac7a85ea8646bff9debe8660":[0,0,1,1,5],
 "structmma7660fc__info__s.html#a41b0bd442708b70d252c50b92c75265a":[0,0,1,1,1],
